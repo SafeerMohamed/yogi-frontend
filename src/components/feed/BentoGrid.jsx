@@ -5,11 +5,12 @@ import { getBentoLayout } from '../../utils/bentoLayout';
 
 export default function BentoGrid({ posts, onPostDeleted }) {
   const viewport = useBentoViewport();
+  const safePosts = Array.isArray(posts) ? posts : [];
 
   return (
     <div className={`bento-grid bento-grid--${viewport}`}>
       <AnimatePresence mode="popLayout">
-        {posts.map((post, i) => (
+        {safePosts.map((post, i) => (
           <MasonryCard
             key={post._id}
             post={post}

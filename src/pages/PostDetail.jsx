@@ -32,8 +32,9 @@ export default function PostDetail() {
           postsAPI.getRelated(id),
         ]);
         setPost(postData);
-        setRelated(relatedData);
-        setLiked(postData.likes?.some((l) => String(l) === String(user?._id) || l?._id === user?._id));
+        setRelated(Array.isArray(relatedData) ? relatedData : []);
+        const likes = Array.isArray(postData?.likes) ? postData.likes : [];
+        setLiked(likes.some((l) => String(l) === String(user?._id) || l?._id === user?._id));
       } catch {
         setPost(null);
       } finally {
@@ -172,7 +173,7 @@ export default function PostDetail() {
               <p className="mt-4 leading-relaxed text-zinc-400">{post.description}</p>
             )}
 
-            {post.tags?.length > 0 && (
+            {Array.isArray(post.tags) && post.tags.length > 0 && (
               <div className="mt-4 flex flex-wrap gap-2">
                 {post.tags.map((tag) => (
                   <span
@@ -208,7 +209,7 @@ export default function PostDetail() {
                 Comments ({post.comments?.length || 0})
               </h3>
               <div className="max-h-64 space-y-4 overflow-y-auto">
-                {post.comments?.map((c, i) => (
+                {(Array.isArray(post.comments) ? post.comments : []).map((c, i) => (
                   <div key={c._id || i} className="flex gap-3">
                     <Avatar src={c.user?.avatar} name={c.user?.username} size="sm" />
                     <div>

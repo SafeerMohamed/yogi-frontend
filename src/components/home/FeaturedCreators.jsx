@@ -24,7 +24,7 @@ export default function FeaturedCreators() {
     usersAPI
       .getCreators()
       .then(({ data }) => {
-        if (data?.length) setCreators(data);
+        if (Array.isArray(data) && data.length) setCreators(data);
       })
       .catch(() => {});
   }, []);
@@ -52,7 +52,7 @@ export default function FeaturedCreators() {
           viewport={{ once: true }}
           className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
         >
-          {creators.map((creator, i) => (
+          {(Array.isArray(creators) ? creators : DEMO_CREATORS).map((creator, i) => (
             <motion.div
               key={creator._id || creator.username}
               variants={fadeUp}

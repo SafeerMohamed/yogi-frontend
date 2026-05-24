@@ -3,11 +3,13 @@ import BentoGrid from './BentoGrid';
 import { BentoSkeleton } from '../ui/Skeleton';
 
 export default function MasonryFeed({ posts, loading, hasMore, loadMore, onPostDeleted }) {
-  if (loading && posts.length === 0) {
+  const safePosts = Array.isArray(posts) ? posts : [];
+
+  if (loading && safePosts.length === 0) {
     return <BentoSkeleton count={14} />;
   }
 
-  if (!loading && posts.length === 0) {
+  if (!loading && safePosts.length === 0) {
     return (
       <div className="py-20 text-center">
         <p className="text-lg text-zinc-400">No pins found</p>
@@ -18,7 +20,7 @@ export default function MasonryFeed({ posts, loading, hasMore, loadMore, onPostD
 
   return (
     <InfiniteScroll
-      dataLength={posts.length}
+      dataLength={safePosts.length}
       next={loadMore}
       hasMore={hasMore}
       loader={
@@ -28,14 +30,14 @@ export default function MasonryFeed({ posts, loading, hasMore, loadMore, onPostD
         </div>
       }
       endMessage={
-        posts.length > 0 && (
+        safePosts.length > 0 && (
           <p className="py-10 text-center text-sm text-zinc-500">
             You&apos;ve explored everything — for now ✨
           </p>
         )
       }
     >
-      <BentoGrid posts={posts} onPostDeleted={onPostDeleted} />
+      <BentoGrid posts={safePosts} onPostDeleted={onPostDeleted} />
     </InfiniteScroll>
   );
 }

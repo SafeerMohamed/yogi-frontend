@@ -16,6 +16,22 @@ export const usePosts = (params = {}) => {
   const search = params.search || '';
   const user = params.user || '';
 
+  const loadDemoPosts = useCallback(
+    (pageNum, reset) => {
+      const filtered = filterDemoPosts({ category, search });
+      const { posts: demoPage, pages, total: demoTotal } = paginateDemoPosts(
+        filtered,
+        pageNum,
+        PAGE_SIZE
+      );
+      setUsingDemo(true);
+      setTotal(demoTotal);
+      setPosts((prev) => (reset ? demoPage : [...prev, ...demoPage]));
+      setHasMore(pageNum < pages);
+    },
+    [category, search]
+  );
+
   const fetchPosts = useCallback(
     async (pageNum = 1, reset = false) => {
       try {
@@ -29,27 +45,23 @@ export const usePosts = (params = {}) => {
           limit: PAGE_SIZE,
         });
 
-        const newPosts = data.posts || [];
+        const newPosts = Array.isArray(data?.posts) ? data.posts : null;
+        if (!newPosts) {
+          loadDemoPosts(pageNum, reset);
+          return;
+        }
+
         setUsingDemo(false);
         setTotal(data.total || 0);
         setPosts((prev) => (reset ? newPosts : [...prev, ...newPosts]));
         setHasMore(pageNum < (data.pages || 1));
       } catch {
-        const filtered = filterDemoPosts({ category, search });
-        const { posts: demoPage, pages, total: demoTotal } = paginateDemoPosts(
-          filtered,
-          pageNum,
-          PAGE_SIZE
-        );
-        setUsingDemo(true);
-        setTotal(demoTotal);
-        setPosts((prev) => (reset ? demoPage : [...prev, ...demoPage]));
-        setHasMore(pageNum < pages);
+        loadDemoPosts(pageNum, reset);
       } finally {
         setLoading(false);
       }
     },
-    [category, search, user]
+    [category, search, user, loadDemoPosts]
   );
 
   useEffect(() => {
